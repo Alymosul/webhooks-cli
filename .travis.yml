@@ -1,0 +1,19 @@
+language: php
+
+php:
+- 7.1.5
+
+services:
+- mysql
+sudo: true
+
+before_script:
+- composer install
+- php webhooks-cli migrate
+
+script:
+- ./vendor/bin/phpunit --configuration ./phpunit.xml
+
+before_install:
+- bash .travis.install-mysql-5.7.sh
+- mysql -e "CREATE DATABASE webhooks_testing"
