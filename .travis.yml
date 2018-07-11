@@ -9,6 +9,7 @@ sudo: true
 
 before_script:
 - composer install
+- mv .env.example .env
 - php webhooks-cli migrate
 
 script:
