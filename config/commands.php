@@ -56,6 +56,10 @@ return [
         Illuminate\Console\Scheduling\ScheduleRunCommand::class,
         Illuminate\Console\Scheduling\ScheduleFinishCommand::class,
         Illuminate\Foundation\Console\VendorPublishCommand::class,
+        \App\Commands\InspiringCommand::class,
+        \LaravelZero\Framework\Commands\App\Renamer::class,
+        \LaravelZero\Framework\Commands\App\Installer::class,
+        \LaravelZero\Framework\Commands\App\Builder::class,
     ],
 
     /*
