@@ -2,24 +2,32 @@
 
 namespace Tests;
 
-use PHPUnit\Framework\TestCase as BaseTestCase;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabaseState;
+use Illuminate\Support\Facades\Artisan;
 
-abstract class TestCase extends BaseTestCase
+abstract class TestCase extends LaravelTestCase
 {
-    use CreatesApplication;
-
+    use CreatesApplication, RefreshDatabase;
+    
     /**
-     * Holds an application instance.
+     * Tweaks the refreshDatabase.
      *
-     * @var \Illuminate\Contracts\Foundation\Application
+     * @return void
      */
-    protected $app;
-
-    /**
-     * Setup the test environment.
-     */
-    protected function setUp(): void
+    public function refreshDatabase()
     {
-        $this->app = $this->createApplication();
+        if (! RefreshDatabaseState::$migrated) {
+            Artisan::call('migrate:fresh', $this->shouldDropViews() ? [
+                '--drop-views' => true,
+            ] : []);
+
+            $this->app[Kernel::class]->setArtisan(null);
+
+            RefreshDatabaseState::$migrated = true;
+        }
+
+        $this->beginDatabaseTransaction();
     }
 }
