@@ -3,7 +3,6 @@
 namespace App\Commands;
 
 use App\Exceptions\CouldNotCreateWebhook;
-use App\Exceptions\CouldNotFindEvent;
 use App\Models\Event;
 use App\Validators\CreateWebhookValidator;
 use LaravelZero\Framework\Commands\Command;
