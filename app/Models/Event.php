@@ -19,4 +19,29 @@ class Event extends Model
      * @var array
      */
     protected $fillable = ['name'];
+
+    /**
+     * Event can have many subscribed webhooks.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function webhooks()
+    {
+        return $this->hasMany(Webhook::class);
+    }
+
+    /**
+     * Adds a new webhook to the event.
+     *
+     * @param string $callbackUrl
+     *
+     * @return Webhook|Model
+     */
+    public function addWebhook(string $callbackUrl)
+    {
+        return $this->webhooks()->create([
+            'event_id' => $this->id,
+            'callback_url' => $callbackUrl
+        ]);
+    }
 }
