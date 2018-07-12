@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\HttpCalls\GuzzleAdapter;
+use App\Services\HttpCalls\HttpCaller;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(HttpCaller::class, GuzzleAdapter::class);
     }
 }
