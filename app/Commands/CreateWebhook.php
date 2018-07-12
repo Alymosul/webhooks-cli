@@ -57,6 +57,6 @@ class CreateWebhook extends Command
 
         $event->addWebhook($callbackUrl);
 
-        $this->output->writeln("New webhook was subscribed to the {$eventName}.");
+        $this->output->writeln("New webhook was subscribed to {$eventName}.");
     }
 }
