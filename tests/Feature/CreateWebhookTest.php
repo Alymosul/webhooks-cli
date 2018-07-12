@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Event;
 use App\Models\Webhook;
 use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
@@ -12,8 +11,7 @@ class CreateWebhookTest extends TestCase
     /** @test */
     function it_creates_a_webhook_to_an_existing_event_in_the_database()
     {
-        // Create an event
-        $event = Event::create(['name' => 'Event1']);
+        $event = $this->createFakeEvent();
 
         $webhookDetails = [
             'eventName' => $event->name,

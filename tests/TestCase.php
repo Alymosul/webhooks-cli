@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Models\Event;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\RefreshDatabaseState;
@@ -29,5 +30,17 @@ abstract class TestCase extends LaravelTestCase
         }
 
         $this->beginDatabaseTransaction();
+    }
+
+    /**
+     * Creates a fake event with the given name.
+     *
+     * @param string $name
+     *
+     * @return Event
+     */
+    protected function createFakeEvent($name = 'fake-event')
+    {
+        return Event::create(['name' => $name]);
     }
 }

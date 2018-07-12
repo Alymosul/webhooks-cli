@@ -36,7 +36,7 @@ class ScheduleWebhookJobTest extends TestCase
     /** @test */
     function it_creates_a_in_progress_job_for_all_the_registered_callbackUrls_for_an_existing_event()
     {
-        $fakeEvent = Event::create(['name' => 'fake-event']);
+        $fakeEvent = $this->createFakeEvent();
 
         $webhook = $fakeEvent->addWebhook('http://one.com');
         $webhook2 = $fakeEvent->addWebhook('http://two.com');
@@ -66,8 +66,7 @@ class ScheduleWebhookJobTest extends TestCase
             'message' => 'Hello World!'
         ]);
 
-        $jobs = Job::all();
-        $this->assertEquals($jobs->count(), 0);
+        $this->assertEquals(Job::count(), 0);
     }
 
     /**
@@ -77,14 +76,13 @@ class ScheduleWebhookJobTest extends TestCase
      */
     function it_cannot_create_a_job_if_no_webhooks_are_registered()
     {
-        $fakeEvent = Event::create(['name' => 'fake-event']);
+        $fakeEvent = $this->createFakeEvent();
 
         Artisan::call('dispatch', [
             'eventName' => $fakeEvent->name,
             'message' => 'Hello World!'
         ]);
 
-        $jobs = Job::all();
-        $this->assertEquals($jobs->count(), 0);
+        $this->assertEquals(Job::count(), 0);
     }
 }
