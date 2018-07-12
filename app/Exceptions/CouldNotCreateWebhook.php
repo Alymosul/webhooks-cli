@@ -2,19 +2,15 @@
 
 namespace App\Exceptions;
 
-use Throwable;
-
-class CouldNotCreateWebhook extends \Exception
+class CouldNotCreateWebhook extends BaseException
 {
     /**
-     * CouldNotCreateWebhook constructor.
+     * Default message used if no message was given to the constructor.
      *
-     * @param string $message
-     * @param int $code
-     * @param Throwable|null $previous
+     * @return string
      */
-    public function __construct($message = "Invalid callback url was given.", $code = 0, Throwable $previous = null)
+    public function defaultMessage()
     {
-        parent::__construct($message, $code, $previous);
+        return 'Invalid callback url was given.';
     }
 }

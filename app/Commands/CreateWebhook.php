@@ -23,6 +23,7 @@ class CreateWebhook extends Command
      * @var string
      */
     protected $description = 'Subscribes for the given event name.';
+
     /**
      * @var CreateWebhookValidator
      */
