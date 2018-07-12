@@ -53,9 +53,7 @@ class CreateWebhook extends Command
 
         $this->createWebhookValidator->validateCallbackUrl($callbackUrl);
 
-        $event = Event::where('name', $eventName)->firstOr(function () use ($eventName) {
-            throw new CouldNotFindEvent($eventName);
-        });
+        $event = Event::getByName($eventName);
 
         $event->addWebhook($callbackUrl);
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\CouldNotFindEvent;
 use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
@@ -28,6 +29,20 @@ class Event extends Model
     public function webhooks()
     {
         return $this->hasMany(Webhook::class);
+    }
+
+    /**
+     * Gets an event that matches the given name.
+     *
+     * @param string $name
+     *
+     * @return static
+     */
+    public static function getByName(string $name)
+    {
+        return static::where('name', $name)->firstOr(function () use ($name) {
+            throw new CouldNotFindEvent($name);
+        });
     }
 
     /**
