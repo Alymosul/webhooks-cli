@@ -135,13 +135,49 @@ class ProcessesJobsTest extends TestCase
         $job = $this->createFakeJob($webhook, [
             'message' => 'Hello, World!',
             'status' => 'fail',
-            'last_call_at' => Carbon::now(),
+            'last_call_at' => Carbon::now()->toDateTimeString(),
             'retries' => 5,
-            'retry_at' => Carbon::now()->addHour(),
+            'retry_at' => Carbon::now()->addHour()->toDateTimeString(),
+            'locked' => false
         ]);
 
         Artisan::call('process');
 
         $this->assertEquals($job->toArray(), Job::first()->toArray());
+    }
+
+    /** @test */
+    function it_ignores_jobs_that_are_locked_by_other_processJobs_command()
+    {
+        $event = $this->createFakeEvent();
+
+        $webhook = $event->addWebhook('http://google.com');
+
+        $job = $this->createFakeJob($webhook, [
+            'message' => 'Hello, World!',
+            'status' => 'inprogress',
+            'last_call_at' => null,
+            'retries' => 0,
+            'retry_at' => null,
+            'locked' => true
+        ]);
+
+        Artisan::call('process');
+
+        $this->assertEquals($job->toArray(), Job::first()->toArray());
+    }
+
+    /** @test */
+    function it_releases_jobs_at_the_end_of_execution()
+    {
+        $event = $this->createFakeEvent();
+
+        $webhook = $event->addWebhook('http://google.com');
+
+        $this->createFakeJob($webhook);
+
+        Artisan::call('process');
+
+        $this->assertEquals(false, Job::first()->locked);
     }
 }

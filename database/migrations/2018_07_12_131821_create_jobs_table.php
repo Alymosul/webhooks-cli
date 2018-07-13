@@ -21,6 +21,7 @@ class CreateJobsTable extends Migration
             $table->timestamp('last_call_at')->nullable();
             $table->tinyInteger('retries')->default(0);
             $table->timestamp('retry_at')->nullable();
+            $table->boolean('locked')->default(false);
             $table->timestamps();
         });
     }

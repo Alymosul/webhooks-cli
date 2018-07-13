@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -20,7 +21,7 @@ class Job extends Model
      * @var array
      */
     protected $fillable = [
-        'message', 'status', 'last_call_at', 'retries', 'retry_at'
+        'message', 'status', 'last_call_at', 'retries', 'retry_at', 'locked'
     ];
 
     /**
@@ -40,9 +41,11 @@ class Job extends Model
      */
     public static function getScheduledJobs()
     {
-        return static::where('status', '=', 'inprogress')
-                     ->orWhere('retry_at', '=<', Carbon::now()->toDateTimeString())
-                     ->get();
+        return static::where('locked', '=', false)
+                     ->where(function (Builder $query) {
+                         $query->where('status', '=', 'inprogress')
+                               ->orWhere('retry_at', '<=', Carbon::now()->toDateTimeString());
+                     })->get();
     }
 
     /**
@@ -76,5 +79,25 @@ class Job extends Model
             'retries' => $numberOfFailures + 1,
             'retry_at' => $nextRetryTime
         ]);
+    }
+
+    /**
+     * Locks the job to be executed in the current process.
+     *
+     * @return bool
+     */
+    public function hold()
+    {
+        return $this->update(['locked' => true]);
+    }
+
+    /**
+     * Unlocks the job to allow other process to execute it.
+     *
+     * @return bool
+     */
+    public function release()
+    {
+        return $this->update(['locked' => false]);
     }
 }

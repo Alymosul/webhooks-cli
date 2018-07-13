@@ -51,14 +51,18 @@ class ProcessJobs extends Command
         //Get all scheduled jobs that are not successful..
         $jobs = Job::getScheduledJobs();
 
+        $jobs->each->lock();
+
         $jobs->each(function (Job $job) {
             // Process the new jobs and the jobs that the retry_at matches the current time.
             $response = $this->httpCaller->hit($job->webhook->callback_url, $job->message);
 
             HttpCallsReactor::getStrategy($response)->handle($job);
+
+            $job->release();
         });
 
+        $this->output->writeln('Executed jobs');
         // each job either successful or failed...if failed it should be marked to retry at certain time..
-
     }
 }
