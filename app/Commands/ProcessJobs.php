@@ -2,10 +2,7 @@
 
 namespace App\Commands;
 
-use App\Models\Job;
-use App\Services\HttpCalls\HttpCaller;
 use App\Services\Jobs\JobsManager;
-use App\Services\Jobs\Reactors\HttpCallsReactor;
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 

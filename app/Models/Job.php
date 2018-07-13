@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class Job extends Model
 {
@@ -56,6 +57,9 @@ class Job extends Model
      */
     public static function unresolvedJobsExist()
     {
+        if (! Schema::hasTable((new static)->table)) {
+            return true;
+        }
         return static::where('retry_at', '!=', null)->exists();
     }
 
