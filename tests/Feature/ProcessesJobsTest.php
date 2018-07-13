@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Job;
+use App\Models\Webhook;
 use App\Services\HttpCalls\HttpCaller;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
@@ -29,6 +31,20 @@ class ProcessesJobsTest extends TestCase
             [9, 1440]
         ];
     }
+
+    /**
+     * Schedules a fake job for a given webhook with the given attributes.
+     *
+     * @param Webhook $webhook
+     * @param array $attributes
+     *
+     * @return Job|Model
+     */
+    private function createFakeJob(Webhook $webhook, $attributes = ['message' => 'Hello World!'])
+    {
+        return $webhook->job()->create($attributes);
+    }
+
     /**
      * Asserts that a job was successful.
      *
@@ -50,7 +66,7 @@ class ProcessesJobsTest extends TestCase
 
         $webhook = $event->addWebhook('http://google.com');
 
-        $webhook->schedule('Hello World!');
+        $this->createFakeJob($webhook);
 
         Artisan::call('process');
 
@@ -71,13 +87,11 @@ class ProcessesJobsTest extends TestCase
 
         $webhook = $event->addWebhook('http://google.com');
 
-        Job::unguard();
-        Job::create([
+        $this->createFakeJob($webhook, [
             'webhook_id' => $webhook->id,
-            'message' => 'Hello World!',
-            'retries' => $numberOfretries - 1,
+            'message'    => 'Hello World!',
+            'retries'    => $numberOfretries - 1,
         ]);
-        Job::reguard();
 
         Artisan::call('process');
 
@@ -99,10 +113,15 @@ class ProcessesJobsTest extends TestCase
 
         $webhook = $event->addWebhook('http://google.com');
 
-        $webhook->schedule('Hello World!');
+        $this->createFakeJob($webhook, [
+            'message' => 'Hello, World!',
+            'last_call_at' => Carbon::now(),
+            'retries' => 2,
+            'retries_at' => Carbon::now()->subMinutes(2),
+        ]);
 
         Artisan::call('process');
-        
+
         $this->assertJobWasSuccessful(Job::first());
     }
 }
