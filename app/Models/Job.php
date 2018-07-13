@@ -64,11 +64,11 @@ class Job extends Model
      * Updates the status of the job to fail.
      *
      * @param int $numberOfFailures
-     * @param Carbon $nextRetryTime
+     * @param Carbon|null $nextRetryTime
      *
      * @return bool
      */
-    public function markAsFailed(int $numberOfFailures, Carbon $nextRetryTime)
+    public function markAsFailed(int $numberOfFailures, Carbon $nextRetryTime = null)
     {
         return $this->update([
             'status' => 'fail',

@@ -31,11 +31,15 @@ class FailReactor implements ReactorInterface
      *
      * @param Job $job
      *
-     * @return Carbon
+     * @return Carbon|null
      */
     private function generateNextRetryTime(Job $job)
     {
-        $additionalMinutes = static::WAIT_TIME[(int) $job->retries];
+        try {
+            $additionalMinutes = static::WAIT_TIME[(int) $job->retries];
+        } catch (\ErrorException $exception) {
+            return null;
+        }
 
         return Carbon::now()->addMinutes($additionalMinutes);
     }

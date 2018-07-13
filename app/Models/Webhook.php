@@ -35,7 +35,7 @@ class Webhook extends Model
      *
      * @param string $message
      *
-     * @return Model
+     * @return Job|Model
      */
     public function schedule(string $message)
     {
