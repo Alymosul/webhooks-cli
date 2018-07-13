@@ -53,9 +53,9 @@ class Job extends Model
     public function markAsSuccessful()
     {
         return $this->update([
-            'status' => 'successful',
+            'status' => 'success',
             'last_call_at' => Carbon::now(),
-            'retries' => null,
+            'retries' => 0,
             'retries_at' => null,
         ]);
     }

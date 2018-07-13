@@ -21,9 +21,14 @@ class FailReactor implements ReactorInterface
      */
     public function handle(Job $job)
     {
-        $job->markAsFailed((int) $job->retries, $this->generateNextRetryTime($job));
+        $retryAt = $this->generateNextRetryTime($job);
 
-        // TODO: still needs retrigerring implementation..
+        $job->markAsFailed((int) $job->retries, $retryAt);
+
+        if ($retryAt) {
+            // schedule the process command to rerun this job
+            // TODO: still needs retrigerring implementation..
+        }
     }
 
     /**
@@ -33,7 +38,7 @@ class FailReactor implements ReactorInterface
      *
      * @return Carbon|null
      */
-    private function generateNextRetryTime(Job $job)
+    protected function generateNextRetryTime(Job $job)
     {
         try {
             $additionalMinutes = static::WAIT_TIME[(int) $job->retries];

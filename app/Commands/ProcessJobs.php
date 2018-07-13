@@ -5,7 +5,6 @@ namespace App\Commands;
 use App\Models\Job;
 use App\Services\HttpCalls\HttpCaller;
 use App\Services\Jobs\Reactors\HttpCallsReactor;
-use GuzzleHttp\Client;
 use LaravelZero\Framework\Commands\Command;
 
 class ProcessJobs extends Command
