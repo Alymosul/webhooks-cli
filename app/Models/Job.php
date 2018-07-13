@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class Job extends Model
 {
@@ -37,7 +38,7 @@ class Job extends Model
     /**
      * Gets all the jobs that are in progress or the failed jobs that should be retried now.
      *
-     * @return static[]
+     * @return static[]|Collection
      */
     public static function getScheduledJobs()
     {

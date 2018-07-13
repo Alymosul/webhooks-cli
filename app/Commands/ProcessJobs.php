@@ -4,6 +4,7 @@ namespace App\Commands;
 
 use App\Models\Job;
 use App\Services\HttpCalls\HttpCaller;
+use App\Services\Jobs\JobsManager;
 use App\Services\Jobs\Reactors\HttpCallsReactor;
 use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
@@ -25,20 +26,20 @@ class ProcessJobs extends Command
     protected $description = 'Triggers callbacks.';
 
     /**
-     * HttpCaller instance.
+     * Manager instance.
      *
-     * @var HttpCaller
+     * @var JobsManager
      */
-    private $httpCaller;
+    private $jobsManager;
 
     /**
      * ProcessJobs constructor.
      *
-     * @param HttpCaller $httpCaller
+     * @param JobsManager $jobsManager
      */
-    public function __construct(HttpCaller $httpCaller)
+    public function __construct(JobsManager $jobsManager)
     {
-        $this->httpCaller = $httpCaller;
+        $this->jobsManager = $jobsManager;
         parent::__construct();
     }
 
@@ -49,23 +50,20 @@ class ProcessJobs extends Command
      */
     public function handle(): void
     {
-        $result = [true => 0, false => 0];
+        $jobs = $this->jobsManager->getScheduledJobs();
 
-        $jobs = Job::getScheduledJobs();
+        try {
+            $this->jobsManager->declareControlOver(...$jobs);
 
-        $jobs->each->lock();
+            list($numberOfSuccess, $numberOfFail) = $this->jobsManager->execute(...$jobs);
+        } catch (\Exception $exception) {
+            $this->output->writeln('Internal error occurred while executing jobs.');
 
-        $jobs->each(function (Job $job) use (&$result) {
-            $response = $this->httpCaller->hit($job->webhook->callback_url, $job->message);
+            $this->jobsManager->forceRelease(...$jobs);
+            return;
+        }
 
-            HttpCallsReactor::getStrategy($response)->handle($job);
-
-            $job->release();
-
-            $result[$response]++;
-        });
-
-        $this->output->writeln("Executed jobs: {$result[true]} success, {$result[false]} fail.");
+        $this->output->writeln("Executed jobs: {$numberOfSuccess} success, {$numberOfFail} fail.");
     }
 
     /**
@@ -75,7 +73,7 @@ class ProcessJobs extends Command
      */
     public function schedule(Schedule $schedule): void
     {
-        if (Job::unresolvedJobsExist()) {
+        if ($this->jobsManager->shouldStopFutureExecution()) {
             $schedule->command(static::class)->everyMinute();
         }
     }
