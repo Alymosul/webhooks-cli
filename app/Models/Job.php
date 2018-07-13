@@ -49,6 +49,16 @@ class Job extends Model
     }
 
     /**
+     * Detects if there are jobs that still not yet resolved.
+     *
+     * @return bool
+     */
+    public static function unresolvedJobsExist()
+    {
+        return static::where('retry_at', '!=', null)->exists();
+    }
+
+    /**
      * Updates the status of the job to successful.
      *
      * @return bool

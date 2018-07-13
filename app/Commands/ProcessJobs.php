@@ -5,6 +5,7 @@ namespace App\Commands;
 use App\Models\Job;
 use App\Services\HttpCalls\HttpCaller;
 use App\Services\Jobs\Reactors\HttpCallsReactor;
+use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
 
 class ProcessJobs extends Command
@@ -48,21 +49,34 @@ class ProcessJobs extends Command
      */
     public function handle(): void
     {
-        //Get all scheduled jobs that are not successful..
+        $result = [true => 0, false => 0];
+
         $jobs = Job::getScheduledJobs();
 
         $jobs->each->lock();
 
-        $jobs->each(function (Job $job) {
-            // Process the new jobs and the jobs that the retry_at matches the current time.
+        $jobs->each(function (Job $job) use (&$result) {
             $response = $this->httpCaller->hit($job->webhook->callback_url, $job->message);
 
             HttpCallsReactor::getStrategy($response)->handle($job);
 
             $job->release();
+
+            $result[$response]++;
         });
 
-        $this->output->writeln('Executed jobs');
-        // each job either successful or failed...if failed it should be marked to retry at certain time..
+        $this->output->writeln("Executed jobs: {$result[true]} success, {$result[false]} fail.");
+    }
+
+    /**
+     * Keeps processing jobs until no scheduled jobs exist.
+     *
+     * @param Schedule $schedule
+     */
+    public function schedule(Schedule $schedule): void
+    {
+        if (Job::unresolvedJobsExist()) {
+            $schedule->command(static::class)->everyMinute();
+        }
     }
 }
