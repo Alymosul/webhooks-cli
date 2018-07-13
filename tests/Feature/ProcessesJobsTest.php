@@ -56,7 +56,7 @@ class ProcessesJobsTest extends TestCase
     {
         $this->assertEquals('success', $job->status);
         $this->assertEquals(0, $job->retries);
-        $this->assertEquals(null, $job->retries_at);
+        $this->assertEquals(null, $job->retry_at);
     }
 
     /** @test */
@@ -74,6 +74,29 @@ class ProcessesJobsTest extends TestCase
 
         $this->assertNotEquals('inprogress', $jobFromDB->status);
         $this->assertEquals('Hello World!', $jobFromDB->message);
+    }
+
+    /** @test */
+    function it_marks_successful_jobs_and_nullifies_other_properties_of_the_job()
+    {
+        $mockHttpCaller = $this->createMock(HttpCaller::class);
+        $this->app->instance(HttpCaller::class, $mockHttpCaller);
+        $mockHttpCaller->method('hit')->willReturn(true);
+
+        $event = $this->createFakeEvent();
+
+        $webhook = $event->addWebhook('http://google.com');
+
+        $this->createFakeJob($webhook, [
+            'message' => 'Hello, World!',
+            'last_call_at' => Carbon::now(),
+            'retries' => 2,
+            'retry_at' => Carbon::now()->subMinutes(2),
+        ]);
+
+        Artisan::call('process');
+
+        $this->assertJobWasSuccessful(Job::first());
     }
 
     /**
@@ -103,25 +126,22 @@ class ProcessesJobsTest extends TestCase
     }
 
     /** @test */
-    function it_marks_successful_jobs_and_nullifies_other_properties_of_the_job()
+    function it_ignores_jobs_that_has_retry_at_in_the_future()
     {
-        $mockHttpCaller = $this->createMock(HttpCaller::class);
-        $this->app->instance(HttpCaller::class, $mockHttpCaller);
-        $mockHttpCaller->method('hit')->willReturn(true);
-
         $event = $this->createFakeEvent();
 
         $webhook = $event->addWebhook('http://google.com');
 
-        $this->createFakeJob($webhook, [
+        $job = $this->createFakeJob($webhook, [
             'message' => 'Hello, World!',
+            'status' => 'fail',
             'last_call_at' => Carbon::now(),
-            'retries' => 2,
-            'retries_at' => Carbon::now()->subMinutes(2),
+            'retries' => 5,
+            'retry_at' => Carbon::now()->addHour(),
         ]);
 
         Artisan::call('process');
 
-        $this->assertJobWasSuccessful(Job::first());
+        $this->assertEquals($job->toArray(), Job::first()->toArray());
     }
 }

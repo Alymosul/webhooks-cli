@@ -56,7 +56,7 @@ class Job extends Model
             'status' => 'success',
             'last_call_at' => Carbon::now(),
             'retries' => 0,
-            'retries_at' => null,
+            'retry_at' => null,
         ]);
     }
 
