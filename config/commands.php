@@ -59,6 +59,17 @@ return [
         \LaravelZero\Framework\Commands\App\Renamer::class,
         \LaravelZero\Framework\Commands\App\Installer::class,
         \LaravelZero\Framework\Commands\App\Builder::class,
+        \Illuminate\Database\Console\Seeds\SeederMakeCommand::class,
+        \Illuminate\Database\Console\Seeds\SeedCommand::class,
+        \Illuminate\Database\Console\Migrations\MigrateCommand::class,
+        \Illuminate\Database\Console\Migrations\MigrateMakeCommand::class,
+        \Illuminate\Database\Console\Migrations\FreshCommand::class,
+        \Illuminate\Database\Console\Migrations\InstallCommand::class,
+        \Illuminate\Database\Console\Migrations\RefreshCommand::class,
+        \Illuminate\Database\Console\Migrations\ResetCommand::class,
+        \Illuminate\Database\Console\Migrations\RollbackCommand::class,
+        \Illuminate\Database\Console\Migrations\StatusCommand::class,
+        \LaravelZero\Framework\Commands\App\CommandMaker::class
     ],
 
     /*
