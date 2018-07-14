@@ -7,3 +7,9 @@
 - create a database with the name just provided in the `.env`
 - run `composer install`
 - run `php webhooks-cli install`
+
+## Cron jobs
+
+To process failed jobs automatically, make sure you run the scheduler by adding the following Cron entry to your server:
+
+`* * * * * php (path-to-project-root-dir)/webhooks-cli schedule:run >> /dev/null 2>&1`
