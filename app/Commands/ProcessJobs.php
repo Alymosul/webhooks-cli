@@ -54,7 +54,7 @@ class ProcessJobs extends Command
 
             list($numberOfSuccess, $numberOfFail) = $this->jobsManager->execute(...$jobs);
         } catch (\Exception $exception) {
-            $this->output->writeln('Internal error occurred while executing jobs.');
+            $this->alert('Internal error occurred while executing jobs.');
 
             $this->jobsManager->forceRelease(...$jobs);
             return;
