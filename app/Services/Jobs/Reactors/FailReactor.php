@@ -24,11 +24,6 @@ class FailReactor implements ReactorInterface
         $retryAt = $this->generateNextRetryTime($job);
 
         $job->markAsFailed((int) $job->retries, $retryAt);
-
-        if ($retryAt) {
-            // schedule the process command to rerun this job
-            // TODO: still needs retrigerring implementation..
-        }
     }
 
     /**
